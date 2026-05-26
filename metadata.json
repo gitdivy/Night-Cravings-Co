@@ -1,0 +1,8 @@
+{
+  "name": "Night Cravings Co.",
+  "description": "Mobile-first late-night food ordering web app UI designed for impulse food ordering.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
