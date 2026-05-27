@@ -78,6 +78,7 @@ export default function App() {
           cartCount={totalItems} 
           cart={cart}
           onCheckout={() => setView('cart')} 
+          globalMenuItems={globalMenuItems}
         />
       )}
 

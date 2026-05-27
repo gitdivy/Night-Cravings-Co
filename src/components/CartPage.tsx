@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { getCartItemsDetails, getCartTotal } from '../lib/cart';
-import { ChevronLeft, Minus, Plus, ShoppingBag, MapPin, Check, Sparkles } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+import { ChevronLeft, Minus, Plus, ShoppingBag, MapPin, Check, Sparkles, Loader2 } from 'lucide-react';
 import { MenuItem, combos } from '../data';
 
 interface CartPageProps {
@@ -27,6 +28,8 @@ export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems 
   const [isLocating, setIsLocating] = useState(false);
   const [locationSuccess, setLocationSuccess] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [isOrdering, setIsOrdering] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
 
   const totalAmount = getCartTotal(cart, globalMenuItems);
   const itemsDetails = getCartItemsDetails(cart, globalMenuItems);
@@ -91,46 +94,93 @@ export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems 
     }
   };
 
-  const handleOrder = (e: React.FormEvent) => {
+  const handleOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isEmpty || isCheckoutDisabled) return;
+    if (isEmpty || isCheckoutDisabled || isOrdering) return;
     
-    const WHATSAPP_NUMBER = '919549590003';
-    
-    let message = `Night Cravings Co. Order 🌙\n\n`;
-    message += `Customer Name: ${formData.name}\n`;
-    message += `Phone Number: ${formData.phone}\n\n`;
-    
-    if (formData.latitude && formData.longitude) {
-      const mapsLink = `https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`;
-      message += `Location:\n${formData.location ? formData.location + '\n' : ''}${mapsLink}\n\n`;
-    } else {
-      message += `Location:\n${formData.location}\n\n`;
-    }
-    
-    message += `Items Ordered:\n\n`;
-    itemsDetails.forEach(item => {
-      message += `* ${item.name} x ${item.quantity}\n`;
-    });
-    
-    message += `\nSubtotal: ₹${totalAmount}\n`;
-    if (deliveryFee > 0) {
-      message += `Delivery Fee: ₹${deliveryFee}\n`;
-    } else {
-      message += `Delivery Fee: FREE\n`;
-    }
-    message += `Total Amount: ₹${finalAmount}\n\n`;
-    message += `Notes: ${formData.notes}\n`;
+    setIsOrdering(true);
+    setOrderError(null);
 
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedMessage}`;
-    
-    window.open(whatsappUrl, '_blank');
-    
-    setTimeout(() => {
-      clearCart();
-      onBack();
-    }, 1000);
+    const orderPayload = {
+      customer_name: formData.name,
+      phone: formData.phone,
+      location_text: formData.location || '',
+      location_link: (formData.latitude && formData.longitude) ? `https://www.google.com/maps?q=${formData.latitude},${formData.longitude}` : null,
+      notes: formData.notes || '',
+      latitude: formData.latitude,
+      longitude: formData.longitude,
+      items: itemsDetails.map(item => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        category: item.category
+      })),
+      subtotal: totalAmount,
+      delivery_fee: deliveryFee,
+      total: finalAmount,
+      status: 'pending'
+    };
+
+    console.log('Sending order payload to Supabase:', JSON.stringify(orderPayload, null, 2));
+
+    try {
+      const { error } = await supabase.from('orders').insert(orderPayload);
+      
+      if (error) {
+        console.error('Supabase Insert Error:', error);
+        setOrderError(error.message);
+        setIsOrdering(false);
+        return; // Stop execution on error
+      }
+      
+      console.log('Order successfully inserted to Supabase!');
+
+      // WhatsApp logic 
+      const WHATSAPP_NUMBER = '919549590003';
+      
+      let message = `Night Cravings Co. Order 🌙\n\n`;
+      message += `Customer Name: ${formData.name}\n`;
+      message += `Phone Number: ${formData.phone}\n\n`;
+      
+      if (formData.latitude && formData.longitude) {
+        const mapsLink = `https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`;
+        message += `Location:\n${formData.location ? formData.location + '\n' : ''}${mapsLink}\n\n`;
+      } else {
+        message += `Location:\n${formData.location}\n\n`;
+      }
+      
+      message += `Items Ordered:\n\n`;
+      itemsDetails.forEach(item => {
+        message += `* ${item.name} x ${item.quantity}\n`;
+      });
+      
+      message += `\nSubtotal: ₹${totalAmount}\n`;
+      if (deliveryFee > 0) {
+        message += `Delivery Fee: ₹${deliveryFee}\n`;
+      } else {
+        message += `Delivery Fee: FREE\n`;
+      }
+      message += `Total Amount: ₹${finalAmount}\n\n`;
+      if (formData.notes) {
+        message += `Notes: ${formData.notes}\n`;
+      }
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedMessage}`;
+      
+      window.open(whatsappUrl, '_blank');
+      
+      setTimeout(() => {
+        clearCart();
+        onBack();
+      }, 1000);
+    } catch (err: any) {
+      console.error('Unexpected order error:', err);
+      setOrderError(err.message || 'An unexpected error occurred during checkout');
+    } finally {
+      setIsOrdering(false);
+    }
   };
 
   return (
@@ -392,17 +442,30 @@ export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems 
               </div>
             </div>
 
+            {orderError && (
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium">
+                Issue placing order: {orderError}
+              </div>
+            )}
+
             <button 
               type="submit"
               form="cart-checkout-form"
-              disabled={isCheckoutDisabled}
+              disabled={isCheckoutDisabled || isOrdering}
               className={`w-full font-bold text-lg px-6 py-4 rounded-xl active:scale-95 transition-all flex justify-center items-center gap-2 ${
-                isCheckoutDisabled 
+                isCheckoutDisabled || isOrdering
                   ? 'bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed' 
                   : 'bg-[#25D366] hover:bg-[#20BE5A] text-white shadow-[0_8px_30px_rgba(37,211,102,0.3)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.4)]'
               }`}
             >
-              Order on WhatsApp
+              {isOrdering ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                'Order on WhatsApp'
+              )}
             </button>
           </div>
         </div>

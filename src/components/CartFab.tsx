@@ -1,17 +1,19 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getCartTotal } from '../lib/cart';
+import { MenuItem } from '../data';
 
 interface CartFabProps {
   cartCount: number;
   cart: Record<string, number>;
   onCheckout: () => void;
+  globalMenuItems: MenuItem[];
 }
 
-export function CartFab({ cartCount, cart, onCheckout }: CartFabProps) {
+export function CartFab({ cartCount, cart, onCheckout, globalMenuItems }: CartFabProps) {
   if (cartCount === 0) return null;
 
-  const total = getCartTotal(cart);
+  const total = getCartTotal(cart, globalMenuItems);
 
   return (
     <AnimatePresence>
