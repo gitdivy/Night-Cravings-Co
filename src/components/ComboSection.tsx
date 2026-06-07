@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export function ComboSection({ cart, updateCart }: { cart: Record<string, number>, updateCart: (id: string, diff: number) => void }) {
+export function ComboSection({ cart, updateCart, isStoreOpen = true }: { cart: Record<string, number>, updateCart: (id: string, diff: number) => void, isStoreOpen?: boolean }) {
   return (
     <section className="py-12 md:py-16 px-4 max-w-7xl mx-auto overflow-hidden">
       <div className="flex items-center gap-3 mb-8">
@@ -52,11 +52,16 @@ export function ComboSection({ cart, updateCart }: { cart: Record<string, number
                 </span>
                 <button
                   onClick={() => {
-                    // For combos, we'll just treat it as a single item in the cart conceptually or add each item.
-                    // The prompt didn't specify combo cart handling, let's just add the combo id directly to cart.
-                    updateCart(combo.id, 1);
+                    if (isStoreOpen) {
+                      updateCart(combo.id, 1);
+                    }
                   }}
-                  className="bg-brand-orange dark:bg-brand-orange text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors active:scale-95 z-10 relative shadow-md shadow-brand-orange/20"
+                  disabled={!isStoreOpen}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors active:scale-95 z-10 relative shadow-md ${
+                    isStoreOpen
+                      ? 'bg-brand-orange text-white hover:bg-orange-600 shadow-brand-orange/20'
+                      : 'bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed shadow-none'
+                  }`}
                   aria-label="Add combo to cart"
                 >
                   <Plus size={20} strokeWidth={2.5} />

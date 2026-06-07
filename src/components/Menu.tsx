@@ -5,7 +5,7 @@ import { MenuItem } from '../data';
 
 const CATEGORIES = ['All', 'Burgers', 'Sandwiches', 'Fries', 'Maggi', 'Pizza', 'Beverages'];
 
-export function Menu({ cart, updateCart, menuItems, loading, error }: { cart: Record<string, number>, updateCart: (id: string, diff: number) => void, menuItems: MenuItem[], loading: boolean, error?: string | null }) {
+export function Menu({ cart, updateCart, menuItems, loading, error, isStoreOpen = true }: { cart: Record<string, number>, updateCart: (id: string, diff: number) => void, menuItems: MenuItem[], loading: boolean, error?: string | null, isStoreOpen?: boolean }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
@@ -89,6 +89,7 @@ export function Menu({ cart, updateCart, menuItems, loading, error }: { cart: Re
                       quantity={cart[item.id] || 0}
                       onUpdate={(diff) => updateCart(item.id, diff)}
                       viewMode={viewMode}
+                      isStoreOpen={isStoreOpen}
                     />
                   ))}
                 </div>
@@ -108,6 +109,7 @@ export function Menu({ cart, updateCart, menuItems, loading, error }: { cart: Re
               quantity={cart[item.id] || 0}
               onUpdate={(diff) => updateCart(item.id, diff)}
               viewMode={viewMode}
+              isStoreOpen={isStoreOpen}
             />
           ))}
         </div>

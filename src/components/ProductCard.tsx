@@ -9,9 +9,10 @@ interface ProductCardProps {
   quantity: number;
   onUpdate: (diff: number) => void;
   viewMode?: 'grid' | 'list';
+  isStoreOpen?: boolean;
 }
 
-export function ProductCard({ item, quantity, onUpdate, viewMode = 'grid' }: ProductCardProps) {
+export function ProductCard({ item, quantity, onUpdate, viewMode = 'grid', isStoreOpen = true }: ProductCardProps) {
   if (viewMode === 'list') {
     return (
       <motion.div 
@@ -56,8 +57,13 @@ export function ProductCard({ item, quantity, onUpdate, viewMode = 'grid' }: Pro
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => onUpdate(1)}
-                    className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white h-full px-5 rounded-full font-semibold text-xs sm:text-sm transition-colors"
+                    onClick={() => isStoreOpen && onUpdate(1)}
+                    disabled={!isStoreOpen}
+                    className={`h-full px-5 rounded-full font-semibold text-xs sm:text-sm transition-colors ${
+                      isStoreOpen 
+                        ? 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white' 
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed opacity-50'
+                    }`}
                   >
                     Add
                   </motion.button>
@@ -139,8 +145,13 @@ export function ProductCard({ item, quantity, onUpdate, viewMode = 'grid' }: Pro
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => onUpdate(1)}
-                  className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white h-full px-3 sm:px-5 w-full sm:w-auto rounded-full font-semibold text-xs sm:text-sm transition-colors"
+                  onClick={() => isStoreOpen && onUpdate(1)}
+                  disabled={!isStoreOpen}
+                  className={`h-full px-3 sm:px-5 w-full sm:w-auto rounded-full font-semibold text-xs sm:text-sm transition-colors ${
+                    isStoreOpen
+                      ? 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed opacity-50'
+                  }`}
                 >
                   Add
                 </motion.button>

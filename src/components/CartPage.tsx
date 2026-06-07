@@ -11,12 +11,13 @@ interface CartPageProps {
   clearCart: () => void;
   onBack: () => void;
   globalMenuItems: MenuItem[];
+  isStoreOpen?: boolean;
 }
 
 const MIN_ORDER_AMOUNT = 149;
 const FREE_DELIVERY_THRESHOLD = 249;
 
-export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems }: CartPageProps) {
+export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems, isStoreOpen = true }: CartPageProps) {
   const [formData, setFormData] = useState({
     name: '',
     location: '',
@@ -43,7 +44,7 @@ export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems 
   }
   const finalAmount = totalAmount + deliveryFee;
 
-  const isCheckoutDisabled = totalAmount < MIN_ORDER_AMOUNT;
+  const isCheckoutDisabled = totalAmount < MIN_ORDER_AMOUNT || !isStoreOpen;
   const progressPercentage = Math.min((totalAmount / FREE_DELIVERY_THRESHOLD) * 100, 100);
 
   let progressMessage = "";
@@ -96,7 +97,7 @@ export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems 
 
   const handleOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isEmpty || isCheckoutDisabled || isOrdering) return;
+    if (isEmpty || isCheckoutDisabled || isOrdering || !isStoreOpen) return;
     
     setIsOrdering(true);
     setOrderError(null);
@@ -463,6 +464,8 @@ export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems 
                   <Loader2 className="w-6 h-6 animate-spin" />
                   Processing...
                 </>
+              ) : !isStoreOpen ? (
+                'Store is Closed'
               ) : (
                 'Order on WhatsApp'
               )}
