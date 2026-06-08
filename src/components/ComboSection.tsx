@@ -1,10 +1,11 @@
 import React from 'react';
-import { combos } from '../data';
+import { Combo } from '../data';
 import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export function ComboSection({ cart, updateCart, isStoreOpen = true }: { cart: Record<string, number>, updateCart: (id: string, diff: number) => void, isStoreOpen?: boolean }) {
+export function ComboSection({ cart, updateCart, isStoreOpen = true, combos }: { cart: Record<string, number>, updateCart: (id: string, diff: number) => void, isStoreOpen?: boolean, combos: Combo[] }) {
+  if (!combos || combos.length === 0) return null;
   return (
     <section className="py-12 md:py-16 px-4 max-w-7xl mx-auto overflow-hidden">
       <div className="flex items-center gap-3 mb-8">

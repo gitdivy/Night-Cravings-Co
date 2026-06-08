@@ -1,7 +1,3 @@
-import comboImage1 from './assets/images/regenerated_image_1779701727568.png';
-import comboImage2 from './assets/images/regenerated_image_1779701733581.png';
-import comboImage3 from './assets/images/regenerated_image_1779701755169.png';
-
 export interface MenuItem {
   id: string;
   name: string;
@@ -129,35 +125,5 @@ export const fallbackMenuItems: MenuItem[] = [
     description: 'Crisp spicy water.',
     category: 'Beverages',
     image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80',
-  },
-];
-
-export const combos: Combo[] = [
-  {
-    id: 'c1',
-    name: '2AM Survival Kit',
-    price: 249,
-    description: 'The ultimate late-night comfort pack.',
-    items: ['Cheese Burst Veg Burger', 'Peri Peri Fries', 'Sprite'],
-    image: comboImage1,
-    label: 'Most Popular',
-  },
-  {
-    id: 'c2',
-    name: 'Hostel Recovery Combo',
-    price: 229,
-    description: 'Diet starts tomorrow. Promise.',
-    items: ['Cheese Maggi', 'Special Night Tea', 'French Fries'],
-    image: comboImage2,
-    label: 'Crowd Pleaser',
-  },
-  {
-    id: 'c3',
-    name: 'Gaming Night Combo',
-    price: 269,
-    description: 'Built for bad late-night decisions.',
-    items: ['Club Veg Sandwich', 'Veg Delight Mini Pizza', 'Sprite'],
-    image: comboImage3,
-    label: 'Value',
   },
 ];

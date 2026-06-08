@@ -6,8 +6,9 @@ import { Menu } from './components/Menu';
 import { ComboSection } from './components/ComboSection';
 import { CartFab } from './components/CartFab';
 import { CartPage } from './components/CartPage';
-import { Footer } from './components/Footer';
+// import { Footer } from './components/Footer';
 import { useMenuItems } from './hooks/useMenuItems';
+import { useCombos } from './hooks/useCombos';
 import { useStoreSettings } from './hooks/useStoreSettings';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -16,6 +17,7 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [view, setView] = useState<'home' | 'cart'>('home');
   const { items: globalMenuItems, loading, error } = useMenuItems();
+  const { combos } = useCombos();
   const { settings } = useStoreSettings();
   const isStoreOpen = settings.store_open;
 
@@ -65,7 +67,7 @@ export default function App() {
           <>
             <Hero />
             <SocialProofTicker />
-            <ComboSection cart={cart} updateCart={updateCart} isStoreOpen={isStoreOpen} />
+            <ComboSection cart={cart} updateCart={updateCart} isStoreOpen={isStoreOpen} combos={combos} />
             <Menu cart={cart} updateCart={updateCart} menuItems={globalMenuItems} loading={loading} error={error} isStoreOpen={isStoreOpen} />
           </>
         ) : (
@@ -75,6 +77,7 @@ export default function App() {
             clearCart={clearCart}
             onBack={() => setView('home')}
             globalMenuItems={globalMenuItems}
+            globalCombos={combos}
             isStoreOpen={isStoreOpen}
           />
         )}
@@ -86,6 +89,7 @@ export default function App() {
           cart={cart}
           onCheckout={() => setView('cart')} 
           globalMenuItems={globalMenuItems}
+          globalCombos={combos}
         />
       )}
 
@@ -105,7 +109,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

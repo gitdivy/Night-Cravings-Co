@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { getCartItemsDetails, getCartTotal } from '../lib/cart';
 import { supabase } from '../lib/supabaseClient';
 import { ChevronLeft, Minus, Plus, ShoppingBag, MapPin, Check, Sparkles, Loader2 } from 'lucide-react';
-import { MenuItem, combos } from '../data';
+import { MenuItem, Combo } from '../data';
 
 interface CartPageProps {
   cart: Record<string, number>;
@@ -11,13 +11,14 @@ interface CartPageProps {
   clearCart: () => void;
   onBack: () => void;
   globalMenuItems: MenuItem[];
+  globalCombos: Combo[];
   isStoreOpen?: boolean;
 }
 
 const MIN_ORDER_AMOUNT = 149;
 const FREE_DELIVERY_THRESHOLD = 249;
 
-export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems, isStoreOpen = true }: CartPageProps) {
+export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems, globalCombos, isStoreOpen = true }: CartPageProps) {
   const [formData, setFormData] = useState({
     name: '',
     location: '',
@@ -32,8 +33,8 @@ export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems,
   const [isOrdering, setIsOrdering] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
 
-  const totalAmount = getCartTotal(cart, globalMenuItems);
-  const itemsDetails = getCartItemsDetails(cart, globalMenuItems);
+  const totalAmount = getCartTotal(cart, globalMenuItems, globalCombos);
+  const itemsDetails = getCartItemsDetails(cart, globalMenuItems, globalCombos);
   const isEmpty = itemsDetails.length === 0;
 
   let deliveryFee = 0;
@@ -63,7 +64,7 @@ export function CartPage({ cart, updateCart, clearCart, onBack, globalMenuItems,
   }
 
   // Upsell Suggestions
-  const suggestedItems = [...globalMenuItems, ...combos]
+  const suggestedItems = [...globalMenuItems, ...globalCombos]
     .filter(item => !cart[item.id])
     .sort(() => 0.5 - Math.random()) // simple random shuffle
     .slice(0, 2);

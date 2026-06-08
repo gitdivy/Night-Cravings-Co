@@ -19,6 +19,9 @@ export function useMenuItems() {
         }
 
         if (data && data.length > 0) {
+          // Filter to only include available items
+          const availableData = data.filter(item => item.available !== false);
+
           // Standardise categories (Burgers, Sandwiches, Fries, Maggi, Pizza, Beverages)
           const standardizeCategory = (cat: string) => {
             if (!cat) return 'Specials';
@@ -28,18 +31,18 @@ export function useMenuItems() {
             if (lower.includes('frie')) return 'Fries';
             if (lower.includes('maggi') || lower.includes('maggie')) return 'Maggi';
             if (lower.includes('pizza')) return 'Pizza';
-            if (lower.includes('beverage') || lower.includes('drink')) return 'Beverages';
+            if (lower.includes('beverage') || lower.includes('drink') || lower.includes('tea')) return 'Beverages';
             return cat;
           };
 
-          const formattedItems = data.map(item => ({
+          const formattedItems = availableData.map(item => ({
             id: String(item.id),
             name: item.name || '',
             price: item.price || 0,
             description: item.description || '',
             category: standardizeCategory(item.category),
             image: item.image || item.image_url || '',
-            isPopular: item.isPopular || item.is_popular || false,
+            isPopular: item.popular || item.isPopular || item.is_popular || false,
           }));
 
           console.log(`Total fetched items: ${formattedItems.length}`);
